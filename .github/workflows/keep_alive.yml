@@ -1,0 +1,17 @@
+name: Supabase Keep Alive (Anti-Lock)
+
+on:
+  schedule:
+    # Chạy mỗi 1 giờ (phút thứ 0 mỗi giờ)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Cho phép chạy thủ công để kiểm tra
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Application URL
+        run: |
+          # Thay thế URL bên dưới bằng URL ứng dụng của bạn
+          curl -s https://quanlytd.vercel.app > /dev/null
+          echo "Đã truy cập ứng dụng lúc $(date)"
