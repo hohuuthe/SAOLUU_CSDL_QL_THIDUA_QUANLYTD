@@ -20,19 +20,19 @@ jobs:
 
       - name: Chay script cap nhat
         env:
-          # Đọc thông tin từ GitHub Secrets đã thiết lập ở Bước 1
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          # Sử dụng tên biến mới bạn đã yêu cầu
+          DUYTRI_SUPABASE_URL: ${{ secrets.DUYTRI_SUPABASE_URL }}
+          DUYTRI_SUPABASE_KEY: ${{ secrets.DUYTRI_SUPABASE_KEY }}
         run: |
           cat << 'EOF' > update_script.js
           const { createClient } = require('@supabase/supabase-js');
 
-          // Đọc thông số từ biến môi trường (Environment Variables)
-          const supabaseUrl = process.env.SUPABASE_URL;
-          const supabaseKey = process.env.SUPABASE_KEY;
+          // Đọc từ biến môi trường mới
+          const supabaseUrl = process.env.DUYTRI_SUPABASE_URL;
+          const supabaseKey = process.env.DUYTRI_SUPABASE_KEY;
 
           if (!supabaseUrl || !supabaseKey) {
-            console.error('Lỗi: Thiếu thông số cấu hình SUPABASE_URL hoặc SUPABASE_KEY trong Secrets.');
+            console.error('Lỗi: Không tìm thấy DUYTRI_SUPABASE_URL hoặc DUYTRI_SUPABASE_KEY.');
             process.exit(1);
           }
 
@@ -47,21 +47,21 @@ jobs:
                 .limit(1);
 
               if (fetchError) {
-                console.error('Lỗi khi truy vấn:', fetchError.message);
+                console.error('Lỗi truy vấn:', fetchError.message);
                 process.exit(1);
               }
 
               if (!data || data.length === 0) {
-                console.log('Chưa có dữ liệu, đang tạo dòng mới...');
+                console.log('Đang tạo dòng dữ liệu đầu tiên...');
                 const { error: insertError } = await supabase
                   .from('duytricsdl')
                   .insert([{ so: 1 }]);
                 
                 if (insertError) {
-                  console.error('Lỗi khi chèn dữ liệu:', insertError.message);
+                  console.error('Lỗi chèn dữ liệu:', insertError.message);
                   process.exit(1);
                 }
-                console.log('Đã tạo thành công dòng đầu tiên.');
+                console.log('Khởi tạo thành công.');
               } else {
                 const record = data[0];
                 const newSo = parseInt(record.so || 0) + 1;
@@ -72,16 +72,16 @@ jobs:
                   .eq('id', record.id);
 
                 if (updateError) {
-                  console.error('Lỗi khi cập nhật:', updateError.message);
+                  console.error('Lỗi cập nhật:', updateError.message);
                   process.exit(1);
                 }
-                console.log(`Cập nhật thành công! Giá trị mới: ${newSo}`);
+                console.log(`Cập nhật thành công! Giá trị 'so' hiện tại: ${newSo}`);
               }
             } catch (err) {
-              console.error('Lỗi hệ thống:', err.message);
+              console.error('Lỗi không xác định:', err.message);
               process.exit(1);
             }
-            console.log('--- Tiến trình hoàn tất ---');
+            console.log('--- Hoàn tất ---');
           }
 
           main();
